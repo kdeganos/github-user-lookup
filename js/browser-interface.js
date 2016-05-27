@@ -22,7 +22,7 @@ $(document).ready(function() {
     document.getElementById("links").innerHTML = "";
     document.getElementById("userOutput").innerHTML = "";
     document.getElementById("repoTable").innerHTML = "";
-    $('#repoTable').append("<tr><th>Repository</th><th>Description</th></tr>");
+    $('#repoTable').append("<tr><th>Repository</th><th>Description</th><th>Date Created</th></tr>");
     lookup.getRepos(userName, displayUser, displayRepos);
   });
 
@@ -30,9 +30,9 @@ $(document).ready(function() {
     $('#userOutput').append("<img src='" + avatar + "'><br> <h3>User Name: " + userName + "</h3><br>");
   };
 
-  var displayRepos = function(repoName, description) {
+  var displayRepos = function(repoName, description, date) {
     // $('#repoOutput').append("<strong>Repository: </strong>" + repoName + "<br> <strong>Description: </strong>" + description + "<br><br>");
-    $('#repoTable').append("<tr><td>" + repoName + "</td><td>" + description + "</td></tr>");
+    $('#repoTable').append("<tr><td>" + repoName + "</td><td>" + description + "</td><td>" + date + "</td></tr>");
   };
 
 });

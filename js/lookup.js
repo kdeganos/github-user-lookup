@@ -1,11 +1,19 @@
 var apiKey = require('./../.env').apiKey;
+var parse = require('parse-link-header');
 
 exports.Lookup = function() {
 
 };
 
 exports.Lookup.prototype.getUser = function(userName, displayProfile) {
-  $.get('https://api.github.com/users/' + userName + '?access_token=' + apiKey).then(function(response){
+  //allow for use without apiKey
+  var apiUrl;
+  if(apiKey){
+    apiUrl = "https://api.github.com/users/" + userName + "?access_token=" + apiKey;
+  } else{
+    apiUrl = "https://api.github.com/users/" + userName;
+  }
+  $.get(apiUrl).then(function(response){
     var fullName = response.name;
     var email = response.email;
 
@@ -23,18 +31,41 @@ exports.Lookup.prototype.getUser = function(userName, displayProfile) {
 };
 
 exports.Lookup.prototype.getRepos = function(userName, displayUser, displayRepos) {
-  $.get('https://api.github.com/users/' + userName + '/repos?access_token=' + apiKey).then(function(response){
-    displayUser(response[0].owner.login, response[0].owner.avatar_url);
+  //allow for use without apiKey
+  var apiUrl;
+  var linkHeader;
+  var pages;
 
-    for (var i = 0; i < response.length; i++) {
-      var desc = response[i].description;
-      if (desc === null || desc === "") {
-        desc = "N/A";
-      }
-      displayRepos(response[i].name, desc);
+  if(apiKey){
+    apiUrl = "https://api.github.com/users/" + userName + "/repos?access_token=" + apiKey;
+  } else{
+    apiUrl = "https://api.github.com/users/" + userName + "/repos";
+  }
+
+  $.ajax({
+    url: apiUrl
+  }).done(function (data, textStatus, xhr) {
+    linkHeader = parse(xhr.getResponseHeader('Link'));
+    pages = linkHeader.last.page;
+    displayUser(data[0].owner.login, data[0].owner.avatar_url);
+
+    for (var i = 1; i <= pages; i++) {
+      var pageUrl = "https://api.github.com/users/" + userName + "/repos?access_token=" + apiKey + "&page=" + i;
+
+      $.get(pageUrl).then(function(response){
+
+        for (var i = 0; i < response.length; i++) {
+          var desc = response[i].description;
+
+          if (desc === null || desc === "") {
+            desc = "N/A";
+          }
+          displayRepos(response[i].name, desc, moment(response[i].created_at).format('MMMM Do YYYY, h:mm:ss a'));
+        }
+      }).fail(function(error){
+        $('#userOutput').text(error.responseJSON.message);
+      });
     }
-
-  }).fail(function(error){
-    $('#userOutput').text(error.responseJSON.message);
   });
+
 };
