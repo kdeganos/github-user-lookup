@@ -17,6 +17,19 @@ img {
   height: 100px;
 }
 
-h3 {
+a {
+  cursor:pointer;
+}
 
+table#repoTable tr:nth-child(even) {
+  background-color: #eee;
+}
+
+table#repoTable tr:nth-child(odd) {
+  background-color: #fff;
+}
+
+table#repoTable th {
+  color: white;
+  background-color: black;
 }
